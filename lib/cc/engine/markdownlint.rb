@@ -13,7 +13,7 @@ module CC
       end
 
       def run
-        pid, _, out, err = POSIX::Spawn.popen4("mdl #{include_paths}")
+        pid, _, out, err = POSIX::Spawn.popen4("mdl --no-warnings #{include_paths}")
         out.each_line do |line|
           io.print JSON.dump(issue(line))
           io.print "\0"
