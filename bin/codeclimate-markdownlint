@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+STDERR.sync = true
+STDOUT.sync = true
+
+$:.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+
+require "cc/engine/markdownlint"
+
+if File.exist?("/config.json")
+  engine_config = JSON.parse(File.read("/config.json"))
+else
+  engine_config = {}
+end
+
+CC::Engine::Markdownlint.new("/code", engine_config, STDOUT).run
