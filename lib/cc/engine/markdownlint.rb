@@ -5,6 +5,8 @@ require "posix/spawn"
 module CC
   module Engine
     class Markdownlint
+      EXTENSIONS = %w[.markdown .md].freeze
+
       def initialize(root, engine_config, io)
         @root = root
         @engine_config = engine_config
@@ -38,7 +40,7 @@ module CC
         return root unless engine_config.has_key?("include_paths")
 
         markdown_files = engine_config["include_paths"].select do |path|
-          path.end_with?(".md")
+          EXTENSIONS.include?(File.extname(path))
         end
 
         Shellwords.join(markdown_files)
