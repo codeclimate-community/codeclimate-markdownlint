@@ -40,7 +40,7 @@ module CC
         return root unless engine_config.has_key?("include_paths")
 
         markdown_files = engine_config["include_paths"].select do |path|
-          EXTENSIONS.include?(File.extname(path))
+          EXTENSIONS.include?(File.extname(path)) || path.end_with?("/")
         end
 
         Shellwords.join(markdown_files)
@@ -49,7 +49,7 @@ module CC
       def issue(line)
         match_data = line.match(/(?<filename>[^:]*):(?<line>\d+): (?<code>MD\d+) (?<description>.*)/)
         line = match_data[:line].to_i
-        filename = match_data[:filename].sub(root + "/", "")
+        filename = File.absolute_path(match_data[:filename]).sub(root + "/", "")
         content = content(match_data[:code])
 
         {
