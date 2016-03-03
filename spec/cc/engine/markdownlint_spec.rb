@@ -20,8 +20,8 @@ module CC
           expect(issue["check_name"]).to eq("MD001")
           expect(issue["content"]["body"]).to include("This rule is triggered when you skip header levels in a markdown document")
           expect(issue["location"]["path"]).to eq("FIXTURE.md")
-          expect(issue["location"]["begin"]).to eq(3)
-          expect(issue["location"]["end"]).to eq(3)
+          expect(issue["location"]["lines"]["begin"]).to eq(3)
+          expect(issue["location"]["lines"]["end"]).to eq(3)
         end
 
         it "exits cleanly with empty include_paths" do
@@ -46,8 +46,8 @@ module CC
             expect(issue["check_name"]).to eq("MD001")
             expect(issue["content"]["body"]).to include("This rule is triggered when you skip header levels in a markdown document")
             expect(issue["location"]["path"]).to eq("FIXTURE.md")
-            expect(issue["location"]["begin"]).to eq(3)
-            expect(issue["location"]["end"]).to eq(3)
+            expect(issue["location"]["lines"]["begin"]).to eq(3)
+            expect(issue["location"]["lines"]["end"]).to eq(3)
           end
         end
       end

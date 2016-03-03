@@ -60,8 +60,10 @@ module CC
           },
           description: match_data[:description],
           location: {
-            begin: line,
-            end: line,
+            lines: {
+              begin: line,
+              end: line,
+            },
             path: filename,
           },
           type: "issue",
