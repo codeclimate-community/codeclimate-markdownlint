@@ -1,12 +1,18 @@
+GIT
+  remote: https://github.com/wfleming/markdownlint
+  revision: 8143d80a31b6f803bdc0f0b90ada3971546d167b
+  ref: 8143d80
+  specs:
+    mdl (0.2.1)
+      kramdown (~> 1.8, >= 1.8.0)
+      mixlib-cli (~> 1.5, >= 1.5.0)
+      mixlib-config (~> 2.1, >= 2.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.2.5)
-    kramdown (1.9.0)
-    mdl (0.2.1)
-      kramdown (~> 1.5, >= 1.5.0)
-      mixlib-cli (~> 1.5, >= 1.5.0)
-      mixlib-config (~> 2.1, >= 2.1.0)
+    kramdown (1.10.0)
     mixlib-cli (1.5.0)
     mixlib-config (2.2.1)
     posix-spawn (0.3.11)
@@ -29,10 +35,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  mdl (~> 0.2)
+  mdl!
   posix-spawn
   rake
   rspec
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
