@@ -39,6 +39,7 @@ namespace :docs do
       if line.start_with?("## MD")
         content.write
         content = Content.new(line[/(MD\d+)/])
+        line = line[1..-1]
       end
 
       content << line
