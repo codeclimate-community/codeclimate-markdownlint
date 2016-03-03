@@ -8,7 +8,7 @@ COPY Gemfile /usr/src/app/
 COPY Gemfile.lock /usr/src/app/
 
 RUN apt-get update && \
-    apt-get install -y build-essential && \
+    apt-get install -y build-essential git && \
     bundle && \
     apt-get remove -y build-essential
 
