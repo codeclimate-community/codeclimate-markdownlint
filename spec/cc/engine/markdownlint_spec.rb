@@ -23,6 +23,13 @@ module CC
           expect(issue["location"]["begin"]).to eq(3)
           expect(issue["location"]["end"]).to eq(3)
         end
+
+        it "exits cleanly with empty include_paths" do
+          io = StringIO.new
+          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          CC::Engine::Markdownlint.new(path, {"include_paths" => []}, io).run
+          expect(io.string.strip.length).to eq(0)
+        end
       end
     end
   end

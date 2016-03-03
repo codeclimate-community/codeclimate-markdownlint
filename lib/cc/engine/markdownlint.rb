@@ -13,6 +13,15 @@ module CC
       end
 
       def run
+        return if include_paths.strip.length == 0
+        run_mdl
+      end
+
+      private
+
+      attr_reader :root, :engine_config, :io, :contents
+
+      def run_mdl
         pid, _, out, err = POSIX::Spawn.popen4("mdl --no-warnings #{include_paths}")
         out.each_line do |line|
           io.print JSON.dump(issue(line))
@@ -24,10 +33,6 @@ module CC
 
         Process::waitpid(pid)
       end
-
-      private
-
-      attr_reader :root, :engine_config, :io, :contents
 
       def include_paths
         return root unless engine_config.has_key?("include_paths")
