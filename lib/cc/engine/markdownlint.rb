@@ -1,6 +1,7 @@
 require "json"
 require "shellwords"
 require "posix/spawn"
+require "digest/md5"
 
 module CC
   module Engine
@@ -47,24 +48,27 @@ module CC
       end
 
       def issue(line)
-        match_data = line.match(/(?<filename>[^:]*):(?<line>\d+): (?<code>MD\d+) (?<description>.*)/)
-        line = match_data[:line].to_i
-        filename = File.absolute_path(match_data[:filename]).sub(root + "/", "")
+        match_data = line.match(/(?<path>[^:]*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/)
+        line_number = match_data[:line_number].to_i
+        path = match_data[:path]
+        relative_path = File.absolute_path(path).sub(root + "/", "")
         content = content(match_data[:code])
+        check_name = match_data[:code]
 
         {
           categories: ["Style"],
-          check_name: match_data[:code],
+          check_name: check_name,
           content: {
             body: content,
           },
           description: match_data[:description],
+          fingerprint: fingerprint(check_name, path, line_number),
           location: {
             lines: {
-              begin: line,
-              end: line,
+              begin: line_number,
+              end: line_number,
             },
-            path: filename,
+            path: relative_path,
           },
           type: "issue",
           remediation_points: 50_000,
@@ -80,6 +84,24 @@ module CC
 
           contents[code] = content
         end
+      end
+
+      def fingerprint(check_name, path, line_number)
+        md5 = Digest::MD5.new
+        md5 << check_name
+        md5 << path
+        md5 << read_line(path, line_number).gsub(/\s/, "")
+        md5.hexdigest
+      end
+
+      def read_line(path, line_number_to_read)
+        File.open(path) do |file|
+          file.each_line.with_index do |line, current_line_number|
+            return line if current_line_number == line_number_to_read - 1
+          end
+        end
+
+        ""
       end
     end
   end
