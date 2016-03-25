@@ -1,11 +1,11 @@
-require "json"
-require "shellwords"
-require "posix/spawn"
 require "digest/md5"
+require "json"
+require "posix/spawn"
 
 module CC
   module Engine
     class Markdownlint
+      CONFIG_FILE = ".mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
 
       def initialize(root, engine_config, io)
@@ -16,35 +16,37 @@ module CC
       end
 
       def run
-        return if include_paths.strip.length == 0
-        run_mdl
+        return if include_paths.length == 0
+
+        pid, _, out, err = POSIX::Spawn.popen4("mdl", *mdl_options, *include_paths)
+        out.each_line do |line|
+          io.print JSON.dump(issue(line))
+          io.print "\0"
+        end
+      ensure
+        if pid
+          STDERR.print err.read
+          [out, err].each(&:close)
+          Process::waitpid(pid)
+        end
       end
 
       private
 
       attr_reader :root, :engine_config, :io, :contents
 
-      def run_mdl
-        pid, _, out, err = POSIX::Spawn.popen4("mdl --no-warnings #{include_paths}")
-        out.each_line do |line|
-          io.print JSON.dump(issue(line))
-          io.print "\0"
-        end
-      ensure
-        STDERR.print err.read
-        [out, err].each(&:close)
-
-        Process::waitpid(pid)
-      end
-
       def include_paths
-        return root unless engine_config.has_key?("include_paths")
+        return [root] unless engine_config.has_key?("include_paths")
 
-        markdown_files = engine_config["include_paths"].select do |path|
+        @include_paths ||= engine_config["include_paths"].select do |path|
           EXTENSIONS.include?(File.extname(path)) || path.end_with?("/")
         end
+      end
 
-        Shellwords.join(markdown_files)
+      def mdl_options
+        options = ["--no-warnings"]
+        options << "--config" << CONFIG_FILE if File.exist?(CONFIG_FILE)
+        options
       end
 
       def issue(line)
@@ -52,15 +54,12 @@ module CC
         line_number = match_data[:line_number].to_i
         path = match_data[:path]
         relative_path = File.absolute_path(path).sub(root + "/", "")
-        content = content(match_data[:code])
         check_name = match_data[:code]
+        body = content(check_name)
 
-        {
+        issue = {
           categories: ["Style"],
           check_name: check_name,
-          content: {
-            body: content,
-          },
           description: match_data[:description],
           fingerprint: fingerprint(check_name, path, line_number),
           location: {
@@ -74,15 +73,19 @@ module CC
           remediation_points: 50_000,
           severity: "info",
         }
+        issue[:content] = { body: body } if body
+        issue
       end
 
       def content(code)
         contents.fetch(code) do
           filename = "../../../contents/#{code}.md"
           path = File.expand_path(filename, File.dirname(__FILE__))
-          content = File.read(path)
 
-          contents[code] = content
+          if File.exist?(path)
+            content = File.read(path)
+            contents[code] = content
+          end
         end
       end
 
