@@ -8,7 +8,7 @@ module CC
       describe "#run" do
         it "returns issues for markdownlint output" do
           io = StringIO.new
-          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
           CC::Engine::Markdownlint.new(path, {}, io).run
           issues = io.string.split("\0")
           issue = JSON.parse(issues.first)
@@ -26,14 +26,15 @@ module CC
 
         it "exits cleanly with empty include_paths" do
           io = StringIO.new
-          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
           CC::Engine::Markdownlint.new(path, {"include_paths" => []}, io).run
           expect(io.string.strip.length).to eq(0)
         end
 
         it "returns issue when config supplies include_paths" do
           io = StringIO.new
-          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
+
           Dir.chdir(path) do
             CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
             issues = io.string.split("\0")
@@ -53,7 +54,7 @@ module CC
 
         it "returns a unique fingerprint per issue" do
           io = StringIO.new
-          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
           Dir.chdir(path) do
             CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
             issues = io.string.split("\0")
@@ -64,6 +65,18 @@ module CC
             issue_2 = JSON.parse(issues[1])
 
             expect(issue_1["fingerprint"]).not_to eq issue_2["fingerprint"]
+          end
+        end
+
+        it "uses the .mdlrc configuration file if one exists" do
+          io = StringIO.new
+          path = File.expand_path("../../fixtures/with_config", File.dirname(__FILE__))
+
+          # Fixture contains a configuration file which disables MD001 and a
+          # Markdown file which violates MD001
+          Dir.chdir(path) do
+            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
+            expect(io.string.split("\0")).to be_empty
           end
         end
       end
