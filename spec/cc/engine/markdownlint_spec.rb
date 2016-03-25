@@ -50,6 +50,22 @@ module CC
             expect(issue["location"]["lines"]["end"]).to eq(3)
           end
         end
+
+        it "returns a unique fingerprint per issue" do
+          io = StringIO.new
+          path = File.expand_path("../../fixtures", File.dirname(__FILE__))
+          Dir.chdir(path) do
+            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
+            issues = io.string.split("\0")
+
+            expect(issues.length).to eq 2
+
+            issue_1 = JSON.parse(issues[0])
+            issue_2 = JSON.parse(issues[1])
+
+            expect(issue_1["fingerprint"]).not_to eq issue_2["fingerprint"]
+          end
+        end
       end
     end
   end
