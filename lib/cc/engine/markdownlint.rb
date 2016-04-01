@@ -5,7 +5,7 @@ require "posix/spawn"
 module CC
   module Engine
     class Markdownlint
-      CONFIG_FILE = ".mdlrc".freeze
+      CONFIG_FILE = "./.mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
 
       def initialize(root, engine_config, io)

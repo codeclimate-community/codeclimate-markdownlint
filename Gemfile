@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "mdl", git: "https://github.com/wfleming/markdownlint", ref: "8143d80"
+gem "mdl", "~> 0.3.1"
 gem "posix-spawn"
 gem "rake"
 
