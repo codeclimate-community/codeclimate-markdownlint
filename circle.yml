@@ -1,4 +1,6 @@
 machine:
+  environment:
+    CODECLIMATE_REPO_TOKEN: ca5120f90202a99c43c0914d301a94e5908136d146ecc0d7fe7fde1c3f9d325e
   services:
     - docker
 
