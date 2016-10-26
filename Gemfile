@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "mdl", "~> 0.3.1"
+gem "mdl", "~> 0.4.0"
 gem "posix-spawn"
 gem "rake"
 
