@@ -52,7 +52,7 @@ module CC
       end
 
       def issue(line)
-        match_data = line.match(/(?<path>[^:]*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/)
+        match_data = line.match(/(?<path>.*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/)
         line_number = match_data[:line_number].to_i
         path = match_data[:path]
         relative_path = File.absolute_path(path).sub(root + "/", "")

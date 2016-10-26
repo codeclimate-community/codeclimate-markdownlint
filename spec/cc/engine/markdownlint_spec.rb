@@ -36,6 +36,15 @@ module CC
           expect(err_io.string).to eq("Some error output\n")
         end
 
+        it "tolerates files with colons in the names" do
+          io = StringIO.new
+          path = File.expand_path("../../fixtures/with_colons", File.dirname(__FILE__))
+          CC::Engine::Markdownlint.new(path, {}, io, STDERR).run
+          issues = io.string.split("\0")
+          issue = JSON.parse(issues.first)
+          expect(issue["check_name"]).to eq("MD001")
+        end
+
         it "exits cleanly with empty include_paths" do
           io = StringIO.new
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
