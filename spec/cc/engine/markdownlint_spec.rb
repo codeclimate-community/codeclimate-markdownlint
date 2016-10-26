@@ -9,7 +9,7 @@ module CC
         it "returns issues for markdownlint output" do
           io = StringIO.new
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
-          CC::Engine::Markdownlint.new(path, {}, io).run
+          CC::Engine::Markdownlint.new(path, {}, io, STDERR).run
           issues = io.string.split("\0")
           issue = JSON.parse(issues.first)
 
@@ -24,10 +24,22 @@ module CC
           expect(issue["location"]["lines"]["end"]).to eq(3)
         end
 
+        it "exits cleanly when the underlying tool has an error" do
+          io = StringIO.new
+          err_io = StringIO.new
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
+
+          child = double(out: "", err: "Some error output")
+          expect(POSIX::Spawn::Child).to receive(:new).and_return(child)
+          CC::Engine::Markdownlint.new(path, {}, io, err_io).run
+
+          expect(err_io.string).to eq("Some error output\n")
+        end
+
         it "exits cleanly with empty include_paths" do
           io = StringIO.new
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
-          CC::Engine::Markdownlint.new(path, {"include_paths" => []}, io).run
+          CC::Engine::Markdownlint.new(path, {"include_paths" => []}, io, STDERR).run
           expect(io.string.strip.length).to eq(0)
         end
 
@@ -36,7 +48,7 @@ module CC
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
 
           Dir.chdir(path) do
-            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
+            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io, STDERR).run
             issues = io.string.split("\0")
             issue = JSON.parse(issues.first)
 
@@ -56,7 +68,7 @@ module CC
           io = StringIO.new
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
           Dir.chdir(path) do
-            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
+            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io, STDERR).run
             issues = io.string.split("\0")
 
             expect(issues.length).to eq 2
@@ -75,7 +87,7 @@ module CC
           # Fixture contains a configuration file which disables MD001 and a
           # Markdown file which violates MD001
           Dir.chdir(path) do
-            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io).run
+            CC::Engine::Markdownlint.new(path, {"include_paths" => ["./"]}, io, STDERR).run
             expect(io.string.split("\0")).to be_empty
           end
         end
