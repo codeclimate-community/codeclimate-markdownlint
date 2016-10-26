@@ -45,6 +45,17 @@ module CC
           expect(issue["check_name"]).to eq("MD001")
         end
 
+        it "exits cleanly when the underlying tool outputs an unexpected format" do
+          io = StringIO.new
+          path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
+
+          child = double(out: "weird output", err: "")
+          expect(POSIX::Spawn::Child).to receive(:new).and_return(child)
+          expect {
+            CC::Engine::Markdownlint.new(path, {}, io, STDERR).run
+          }.to raise_error(CC::Engine::Markdownlint::UnexpectedOutputFormat)
+        end
+
         it "exits cleanly with empty include_paths" do
           io = StringIO.new
           path = File.expand_path("../../fixtures/default", File.dirname(__FILE__))
