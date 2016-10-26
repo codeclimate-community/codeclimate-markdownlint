@@ -7,6 +7,7 @@ module CC
     class Markdownlint
       CONFIG_FILE = "./.mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
+      UnexpectedOutputFormat = Class.new(StandardError)
 
       def initialize(root, engine_config, io, err_io)
         @root = root
@@ -51,8 +52,10 @@ module CC
         options
       end
 
+      ISSUE_PATTERN = /(?<path>.*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/
+
       def issue(line)
-        match_data = line.match(/(?<path>.*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/)
+        match_data = line.match(ISSUE_PATTERN) or raise UnexpectedOutputFormat, line
         line_number = match_data[:line_number].to_i
         path = match_data[:path]
         relative_path = File.absolute_path(path).sub(root + "/", "")
