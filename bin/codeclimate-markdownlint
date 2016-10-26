@@ -13,4 +13,4 @@ else
   engine_config = {}
 end
 
-CC::Engine::Markdownlint.new("/code", engine_config, STDOUT).run
+CC::Engine::Markdownlint.new("/code", engine_config, STDOUT, STDERR).run

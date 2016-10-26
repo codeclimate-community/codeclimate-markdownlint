@@ -8,32 +8,34 @@ module CC
       CONFIG_FILE = "./.mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
 
-      def initialize(root, engine_config, io)
+      def initialize(root, engine_config, io, err_io)
         @root = root
         @engine_config = engine_config
         @io = io
+        @err_io = err_io
         @contents = {}
       end
 
       def run
         return if include_paths.length == 0
 
-        pid, _, out, err = POSIX::Spawn.popen4("mdl", *mdl_options, *include_paths)
+        child = POSIX::Spawn::Child.new("mdl", *mdl_options, *include_paths)
+
+        out = child.out.force_encoding("UTF-8")
+        err = child.err.force_encoding("UTF-8")
+        if err.chars.any?
+          err_io.puts(err)
+        end
+
         out.each_line do |line|
           io.print JSON.dump(issue(line))
           io.print "\0"
-        end
-      ensure
-        if pid
-          STDERR.print err.read
-          [out, err].each(&:close)
-          Process::waitpid(pid)
         end
       end
 
       private
 
-      attr_reader :root, :engine_config, :io, :contents
+      attr_reader :root, :engine_config, :err_io, :io, :contents
 
       def include_paths
         return [root] unless engine_config.has_key?("include_paths")
