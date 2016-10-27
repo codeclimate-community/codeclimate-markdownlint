@@ -1,14 +1,14 @@
 # codeclimate-markdownlint
 
-[![Code Climate](https://codeclimate.com/github/codeclimate/codeclimate-markdownlint/badges/gpa.svg)](https://codeclimate.com/github/codeclimate/codeclimate-markdownlint)
-[![Test Coverage](https://codeclimate.com/github/codeclimate/codeclimate-markdownlint/badges/coverage.svg)](https://codeclimate.com/github/codeclimate/codeclimate-markdownlint/coverage)
+[![Code Climate](https://codeclimate.com/github/codeclimate-community/codeclimate-markdownlint/badges/gpa.svg)](https://codeclimate.com/github/codeclimate-community/codeclimate-markdownlint)
+[![Test Coverage](https://codeclimate.com/github/codeclimate-community/codeclimate-markdownlint/badges/coverage.svg)](https://codeclimate.com/github/codeclimate-community/codeclimate-markdownlint/coverage)
 
 Code Climate Engine to run [markdownlint][mdl]
 
 ## Installation
 
 ```
-git clone https://github.com/codeclimate/codeclimate-markdownlint
+git clone https://github.com/codeclimate-community/codeclimate-markdownlint
 cd codeclimate-markdownlint
 make
 ```
