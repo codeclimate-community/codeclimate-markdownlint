@@ -1,8 +1,6 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    codeclimate-test-reporter (1.0.4)
-      simplecov
     diff-lcs (1.2.5)
     docile (1.1.5)
     json (2.0.2)
@@ -38,7 +36,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  codeclimate-test-reporter (~> 1.0.0)
   mdl (~> 0.4.0)
   posix-spawn
   rake
@@ -46,4 +43,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   1.13.7
+   1.17.2
