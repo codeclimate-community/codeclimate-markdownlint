@@ -6,12 +6,8 @@ image:
 	docker build --rm -t $(IMAGE_NAME) .
 
 test: image
-	docker run --rm \
-		--env CIRCLECI \
-		--env CIRCLE_BUILD_NUM \
-		--env CIRCLE_BRANCH \
-		--env CIRCLE_SHA1 \
-		--env CODECLIMATE_REPO_TOKEN \
+	docker run \
+		--name "markdownlint-${CIRCLE_WORKFLOW_ID}" \
 		--workdir /usr/src/app \
-		--volume "$(PWD)/.git:/usr/src/app/.git" \
-		$(IMAGE_NAME) sh -c "bundle exec rake && bundle exec codeclimate-test-reporter"
+		$(IMAGE_NAME) bundle exec rake
+	docker cp "markdownlint-${CIRCLE_WORKFLOW_ID}":/usr/src/app/coverage ./coverage
