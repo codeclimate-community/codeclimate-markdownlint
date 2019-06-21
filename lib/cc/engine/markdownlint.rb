@@ -8,6 +8,10 @@ module CC
       CONFIG_FILE = "./.mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
       UnexpectedOutputFormat = Class.new(StandardError)
+      LINES_TO_SKIP = [
+        "\n".freeze,
+        "A detailed description of the rules is available at https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md\n".freeze,
+      ].freeze
 
       def initialize(root, engine_config, io, err_io)
         @root = root
@@ -29,8 +33,10 @@ module CC
         end
 
         out.each_line do |line|
-          io.print JSON.dump(issue(line))
-          io.print "\0"
+          if (details = issue(line))
+            io.print JSON.dump(details)
+            io.print "\0"
+          end
         end
       end
 
@@ -55,6 +61,7 @@ module CC
       ISSUE_PATTERN = /(?<path>.*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/
 
       def issue(line)
+        return if LINES_TO_SKIP.include?(line)
         match_data = line.match(ISSUE_PATTERN) or raise UnexpectedOutputFormat, line
         line_number = match_data[:line_number].to_i
         path = match_data[:path]
