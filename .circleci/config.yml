@@ -12,7 +12,7 @@ jobs:
       - run: chmod +x ./cc-test-reporter
       - run: ./cc-test-reporter before-build
       - run: make image
-      - run: make test
+      - run: make citest
       - run:
           name: "Upload coverage"
           command: ./cc-test-reporter after-build --prefix="/usr/src/app"
