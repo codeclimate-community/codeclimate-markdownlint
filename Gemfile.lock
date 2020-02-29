@@ -13,7 +13,7 @@ GEM
     mixlib-config (2.2.18)
       tomlrb
     posix-spawn (0.3.11)
-    rake (11.3.0)
+    rake (12.3.3)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
