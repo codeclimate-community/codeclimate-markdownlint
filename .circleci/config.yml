@@ -1,29 +1,60 @@
 version: 2
+
+init: &init
+  run:
+    name: init
+    command: |
+      echo '. .circleci/shared.bash' >> "$BASH_ENV"
+      . .circleci/shared.bash
 jobs:
   build_and_test:
-    docker:
-      - image: circleci/python:latest
+    environment:
+      CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
+    machine:
+      docker_layer_caching: true
+    working_directory: ~/codeclimate/codeclimate-markdownlint
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-
       - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter
       - run: chmod +x ./cc-test-reporter
       - run: ./cc-test-reporter before-build
       - run: make image
       - run: make citest
+      - run: ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
+
+  release_images:
+    machine:
+      docker_layer_caching: false
+    working_directory: ~/codeclimate/codeclimate-markdownlint
+    steps:
+      - checkout
+      - *init
       - run:
-          name: "Upload coverage"
-          command: ./cc-test-reporter after-build --prefix="/usr/src/app"
-          environment:
-              CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
+          name: Validate owner
+          command: |
+            if [ "$CIRCLE_PROJECT_USERNAME" -ne "codeclimate" ]
+            then
+              echo "Skipping release for non-codeclimate branches"
+              circleci step halt
+            fi
+      - run: make image
+      - run: echo "$GCR_JSON_KEY" | docker login -u _json_key --password-stdin us.gcr.io
+      - run:
+          name: Push image to GCR
+          command: |
+            docker tag codeclimate/codeclimate-markdownlint \
+              us.gcr.io/code-climate/codeclimate-markdownlint:b$CIRCLE_BUILD_NUM
+            docker push us.gcr.io/code-climate/codeclimate-markdownlint:b$CIRCLE_BUILD_NUM
+      - run: send_webhook
 
 workflows:
   version: 2
   build_deploy:
     jobs:
       - build_and_test
-notify:
-  webhooks:
-    - url: https://cc-slack-proxy.herokuapp.com/circle
+      - release_images:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: /master|channel\/[\w-]+/

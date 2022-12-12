@@ -1,48 +1,59 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    diff-lcs (1.2.5)
-    docile (1.1.5)
-    json (2.0.2)
-    kramdown (1.17.0)
-    mdl (0.5.0)
-      kramdown (~> 1.12, >= 1.12.0)
-      mixlib-cli (~> 1.7, >= 1.7.0)
-      mixlib-config (~> 2.2, >= 2.2.1)
-    mixlib-cli (1.7.0)
-    mixlib-config (2.2.18)
+    chef-utils (18.0.185)
+      concurrent-ruby
+    concurrent-ruby (1.1.10)
+    diff-lcs (1.5.0)
+    docile (1.4.0)
+    kramdown (2.4.0)
+      rexml
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
+    mdl (0.12.0)
+      kramdown (~> 2.3)
+      kramdown-parser-gfm (~> 1.1)
+      mixlib-cli (~> 2.1, >= 2.1.1)
+      mixlib-config (>= 2.2.1, < 4)
+      mixlib-shellout
+    mixlib-cli (2.1.8)
+    mixlib-config (3.0.27)
       tomlrb
-    posix-spawn (0.3.11)
-    rake (11.3.0)
-    rspec (3.5.0)
-      rspec-core (~> 3.5.0)
-      rspec-expectations (~> 3.5.0)
-      rspec-mocks (~> 3.5.0)
-    rspec-core (3.5.4)
-      rspec-support (~> 3.5.0)
-    rspec-expectations (3.5.0)
+    mixlib-shellout (3.2.7)
+      chef-utils
+    posix-spawn (0.3.15)
+    rake (13.0.6)
+    rexml (3.2.5)
+    rspec (3.12.0)
+      rspec-core (~> 3.12.0)
+      rspec-expectations (~> 3.12.0)
+      rspec-mocks (~> 3.12.0)
+    rspec-core (3.12.0)
+      rspec-support (~> 3.12.0)
+    rspec-expectations (3.12.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.5.0)
-    rspec-mocks (3.5.0)
+      rspec-support (~> 3.12.0)
+    rspec-mocks (3.12.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.5.0)
-    rspec-support (3.5.0)
-    simplecov (0.12.0)
-      docile (~> 1.1.0)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.0)
-    tomlrb (1.2.8)
+      rspec-support (~> 3.12.0)
+    rspec-support (3.12.0)
+    simplecov (0.21.2)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
+    tomlrb (2.0.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  mdl (~> 0.5.0)
+  mdl (~> 0.12.0)
   posix-spawn
   rake
   rspec
   simplecov
 
 BUNDLED WITH
-   1.17.2
+   2.1.4

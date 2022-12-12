@@ -1,4 +1,4 @@
-FROM ruby:2.6.3-slim
+FROM ruby:2.7.7-alpine3.16
 
 ENV LANG C.UTF-8
 
@@ -7,12 +7,12 @@ WORKDIR /usr/src/app
 COPY Gemfile /usr/src/app/
 COPY Gemfile.lock /usr/src/app/
 
-RUN apt-get update && \
-    apt-get install -y build-essential git && \
+RUN apk update && \
+    apk add build-base git && \
     bundle && \
-    apt-get remove -y build-essential
+    apk del build-base
 
-RUN adduser --uid 9000 --disabled-password --quiet --gecos "app" app
+RUN adduser -u 9000 -D -g "app" app
 COPY . /usr/src/app
 RUN chown -R app:app /usr/src/app
 
