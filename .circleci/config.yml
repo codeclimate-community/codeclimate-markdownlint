@@ -24,7 +24,7 @@ jobs:
           command: |
             ./cc-test-reporter before-build
             make citest
-            ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
+            ./cc-test-reporter after-build -t simplecov --prefix "/usr/src/app"
 
   release_images:
     machine:
