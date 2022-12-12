@@ -18,13 +18,11 @@ jobs:
       - run: ./cc-test-reporter before-build
       - run: make image
       - run:
-          name: "make citest"
-          command: make citest
-          environment:
-              CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
-      - run:
-          name: "Upload coverage"
-          command: ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
+          name: "Run tests and upload coverage"
+          command: |
+            ./cc-test-reporter before-build
+            make citest
+            ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
           environment:
               CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
 
