@@ -2,6 +2,31 @@
 
 set -exuo pipefail
 
+function install_cc_test_reporter() {
+  local version="${1:-latest}"
+
+  curl -L -o "/tmp/cc-test-reporter" "https://codeclimate.com/downloads/test-reporter/test-reporter-$version-linux-amd64"
+  sudo mv /tmp/cc-test-reporter /usr/bin
+  sudo chmod +x /usr/bin/cc-test-reporter
+}
+
+function cp_test_coverage() {
+  set +u
+  local output_folder="${1:-coverage}"
+
+  docker cp "test-workflow-${CIRCLE_WORKFLOW_ID}-${CIRCLE_JOB}-node-${CIRCLE_NODE_INDEX}":/app/coverage coverage
+
+  cc-test-reporter format-coverage --input-type simplecov --output "./$output_folder/codeclimate.${CIRCLE_JOB}_${CIRCLE_NODE_INDEX}.json" --prefix "/app"
+  set -u
+}
+
+function report_test_coverage() {
+  mv coverage_ui/* coverage
+  cc-test-reporter sum-coverage coverage/codeclimate.*.json --parts "$(find coverage/codeclimate.*.json | wc -l)"
+
+  cc-test-reporter upload-coverage || echo "report coverage skipped"
+}
+
 function commiter_email() {
   set +x
   git log -n 1 --format='%ae'

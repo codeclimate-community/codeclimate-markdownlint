@@ -7,7 +7,7 @@ init: &init
       echo '. .circleci/shared.bash' >> "$BASH_ENV"
       . .circleci/shared.bash
 jobs:
-  build_and_test:
+  build:
     environment:
       CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
     machine:
@@ -15,15 +15,28 @@ jobs:
     working_directory: ~/codeclimate/codeclimate-markdownlint
     steps:
       - checkout
-      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter
-      - run: chmod +x ./cc-test-reporter
-      - run: make image
+      - *init
+      - run: make citest
       - run:
-          name: "Run tests and upload coverage"
+          name: Collect test coverage
           command: |
-            make citest
-            ./cc-test-reporter format-coverage --input-type simplecov
-            ./cc-test-reporter upload-coverage --prefix "./coverage"
+            install_cc_test_reporter
+            cp_test_coverage
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage
+
+  report_coverage:
+    environment:
+      CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: echo '. .circleci/shared.bash' >> "$BASH_ENV"
+      - run: install_cc_test_reporter
+      - run: report_test_coverage
 
   release_images:
     machine:
