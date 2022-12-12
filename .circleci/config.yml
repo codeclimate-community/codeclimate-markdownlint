@@ -7,13 +7,22 @@ init: &init
       echo '. .circleci/shared.bash' >> "$BASH_ENV"
       . .circleci/shared.bash
 jobs:
-  build:
+  build_and_test:
     machine:
       docker_layer_caching: false
     working_directory: ~/codeclimate/codeclimate-markdownlint
     steps:
       - checkout
+      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter
+      - run: chmod +x ./cc-test-reporter
+      - run: ./cc-test-reporter before-build
       - run: make image
+      - run: make citest
+      - run:
+          name: "Upload coverage"
+          command: ./cc-test-reporter after-build --prefix="/usr/src/app"
+          environment:
+              CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
 
   release_images:
     machine:
@@ -44,10 +53,10 @@ workflows:
   version: 2
   build_deploy:
     jobs:
-      - build
+      - build_and_test
       - release_images:
           requires:
-            - build
+            - build_and_test
           filters:
             branches:
               only: /master|channel\/[\w-]+/
