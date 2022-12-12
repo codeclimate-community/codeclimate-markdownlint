@@ -21,7 +21,7 @@ jobs:
       - run: make image
       - run:
           name: "Run tests and upload coverage"
-          command:
+          command: |
             make citest
             ./cc-test-reporter format-coverage --input-type simplecov --prefix "/usr/src/app"
             ./cc-test-reporter upload-coverage
