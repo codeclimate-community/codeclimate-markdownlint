@@ -14,7 +14,7 @@ function cp_test_coverage() {
   set +u
   local output_folder="${1:-coverage}"
 
-  docker cp "test-workflow-${CIRCLE_WORKFLOW_ID}-${CIRCLE_JOB}-node-${CIRCLE_NODE_INDEX}":/app/coverage coverage
+  docker cp "markdownlint-${CIRCLE_WORKFLOW_ID}":/app/coverage coverage
 
   cc-test-reporter format-coverage --input-type simplecov --output "./$output_folder/codeclimate.${CIRCLE_JOB}_${CIRCLE_NODE_INDEX}.json" --prefix "/app"
   set -u
