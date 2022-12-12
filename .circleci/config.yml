@@ -23,7 +23,7 @@ jobs:
           command: |
             make citest
             ./cc-test-reporter format-coverage --input-type simplecov
-            ./cc-test-reporter upload-coverage
+            ./cc-test-reporter upload-coverage --prefix "./coverage"
 
   release_images:
     machine:
