@@ -15,29 +15,12 @@ jobs:
     working_directory: ~/codeclimate/codeclimate-markdownlint
     steps:
       - checkout
-      - *init
+      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > cc-test-reporter
+      - run: chmod +x ./cc-test-reporter
+      - run: ./cc-test-reporter before-build
       - run: make image
       - run: make citest
-      - run:
-          name: Collect test coverage
-          command: |
-            install_cc_test_reporter
-            cp_test_coverage
-      - persist_to_workspace:
-          root: .
-          paths:
-            - coverage
-
-  report_coverage:
-    environment:
-      CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: echo '. .circleci/shared.bash' >> "$BASH_ENV"
-      - run: install_cc_test_reporter
-      - run: report_test_coverage
+      - run: ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
 
   release_images:
     machine:
@@ -69,9 +52,6 @@ workflows:
   build_deploy:
     jobs:
       - build_and_test
-      - report_coverage:
-          requires:
-            - build_and_test
       - release_images:
           requires:
             - build_and_test
