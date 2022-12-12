@@ -8,10 +8,6 @@ module CC
       CONFIG_FILE = "./.mdlrc".freeze
       EXTENSIONS = %w[.markdown .md].freeze
       UnexpectedOutputFormat = Class.new(StandardError)
-      LINES_TO_SKIP = [
-        "\n".freeze,
-        "A detailed description of the rules is available at https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md\n".freeze,
-      ].freeze
 
       def initialize(root, engine_config, io, err_io)
         @root = root
@@ -33,10 +29,16 @@ module CC
         end
 
         out.each_line do |line|
-          if (details = issue(line))
-            io.print JSON.dump(details)
-            io.print "\0"
+          if (json_lines = JSON.parse(line))
+            json_lines.each do |json_line|
+              if (details = issue(json_line))
+                io.print JSON.dump(details)
+                io.print("\0")
+              end
+            end
           end
+        rescue JSON::ParserError
+          raise UnexpectedOutputFormat, line
         end
       end
 
@@ -53,26 +55,22 @@ module CC
       end
 
       def mdl_options
-        options = ["--no-warnings"]
+        options = ["--no-warnings", "--json"]
         options << "--config" << CONFIG_FILE if File.exist?(CONFIG_FILE)
         options
       end
 
-      ISSUE_PATTERN = /(?<path>.*):(?<line_number>\d+): (?<code>MD\d+) (?<description>.*)/
-
-      def issue(line)
-        return if LINES_TO_SKIP.include?(line)
-        match_data = line.match(ISSUE_PATTERN) or raise UnexpectedOutputFormat, line
-        line_number = match_data[:line_number].to_i
-        path = match_data[:path]
+      def issue(json_line)
+        line_number = json_line["line"]
+        path = json_line["filename"]
         relative_path = File.absolute_path(path).sub(root + "/", "")
-        check_name = match_data[:code]
+        check_name = json_line["rule"]
         body = content(check_name)
 
         issue = {
           categories: ["Style"],
           check_name: check_name,
-          description: match_data[:description],
+          description: json_line["description"],
           fingerprint: fingerprint(check_name, path, line_number),
           location: {
             lines: {
