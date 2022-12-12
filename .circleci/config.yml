@@ -17,12 +17,15 @@ jobs:
       - run: chmod +x ./cc-test-reporter
       - run: ./cc-test-reporter before-build
       - run: make image
-      - run: make citest
       - run:
-          name: "Upload coverage"
-          command: ./cc-test-reporter after-build --prefix="/usr/src/app"
-          environment:
-              CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
+        command: make citest
+        environment:
+          CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
+      - run:
+        name: "Upload coverage"
+        command: ./cc-test-reporter after-build --prefix="/usr/src/app"
+        environment:
+          CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
 
   release_images:
     machine:
