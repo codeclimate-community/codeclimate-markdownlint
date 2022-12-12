@@ -16,14 +16,11 @@ function cp_test_coverage() {
 
   docker cp "markdownlint-${CIRCLE_WORKFLOW_ID}":/usr/src/app/coverage coverage
 
-  cc-test-reporter format-coverage --input-type simplecov --output "./$output_folder/codeclimate.${CIRCLE_JOB}_${CIRCLE_NODE_INDEX}.json" --prefix "/app"
+  cc-test-reporter format-coverage --input-type simplecov --output "./coverage/codeclimate.json" --prefix "/usr/src/app"
   set -u
 }
 
 function report_test_coverage() {
-  mv coverage_ui/* coverage
-  cc-test-reporter sum-coverage coverage/codeclimate.*.json --parts "$(find coverage/codeclimate.*.json | wc -l)"
-
   cc-test-reporter upload-coverage || echo "report coverage skipped"
 }
 
