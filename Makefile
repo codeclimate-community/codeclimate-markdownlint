@@ -9,10 +9,9 @@ citest: image
 	docker run \
 		--name "markdownlint-${CIRCLE_WORKFLOW_ID}" \
 		--workdir /usr/src/app \
-		$(IMAGE_NAME) bundle exec rake
-	docker cp "markdownlint-${CIRCLE_WORKFLOW_ID}":/usr/src/app/coverage ./coverage
+		$(IMAGE_NAME) bundle exec rspec
 
 test: image
 	docker run \
 		--workdir /usr/src/app \
-		$(IMAGE_NAME) bundle exec rake
+		$(IMAGE_NAME) bundle exec rspec
