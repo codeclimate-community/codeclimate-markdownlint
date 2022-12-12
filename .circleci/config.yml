@@ -7,7 +7,7 @@ init: &init
       echo '. .circleci/shared.bash' >> "$BASH_ENV"
       . .circleci/shared.bash
 jobs:
-  build:
+  build_and_test:
     environment:
       CC_TEST_REPORTER_ID: 45c013b6d2380a087f53ebc237a799b3ca09f1a3b05ddf96982637d42a9d6861
     machine:
@@ -16,6 +16,7 @@ jobs:
     steps:
       - checkout
       - *init
+      - run: make image
       - run: make citest
       - run:
           name: Collect test coverage
@@ -67,16 +68,13 @@ workflows:
   version: 2
   build_deploy:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - build_and_test
       - report_coverage:
           requires:
-            - test
+            - build_and_test
       - release_images:
           requires:
-            - test
+            - build_and_test
           filters:
             branches:
               only: /master|channel\/[\w-]+/
