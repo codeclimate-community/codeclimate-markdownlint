@@ -1,11 +1,5 @@
 version: 2
 
-init: &init
-  run:
-    name: init
-    command: |
-      echo '. .circleci/shared.bash' >> "$BASH_ENV"
-      . .circleci/shared.bash
 jobs:
   build_and_test:
     environment:
@@ -22,39 +16,8 @@ jobs:
       - run: make citest
       - run: ./cc-test-reporter after-build -t simplecov --prefix="/usr/src/app"
 
-  release_images:
-    machine:
-      docker_layer_caching: false
-    working_directory: ~/codeclimate/codeclimate-markdownlint
-    steps:
-      - checkout
-      - *init
-      - run:
-          name: Validate owner
-          command: |
-            if [ "$CIRCLE_PROJECT_USERNAME" -ne "codeclimate" ]
-            then
-              echo "Skipping release for non-codeclimate branches"
-              circleci step halt
-            fi
-      - run: make image
-      - run: echo "$GCR_JSON_KEY" | docker login -u _json_key --password-stdin us.gcr.io
-      - run:
-          name: Push image to GCR
-          command: |
-            docker tag codeclimate/codeclimate-markdownlint \
-              us.gcr.io/code-climate/codeclimate-markdownlint:b$CIRCLE_BUILD_NUM
-            docker push us.gcr.io/code-climate/codeclimate-markdownlint:b$CIRCLE_BUILD_NUM
-      - run: send_webhook
-
 workflows:
   version: 2
   build_deploy:
     jobs:
       - build_and_test
-      - release_images:
-          requires:
-            - build_and_test
-          filters:
-            branches:
-              only: /master|channel\/[\w-]+/
